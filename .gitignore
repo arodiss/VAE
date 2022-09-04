@@ -5,3 +5,11 @@ venv/*
 .idea
 .idea/
 .idea/*
+
+tensorboard
+tensorboard/
+tensorboard/*
+
+__pycache__
+__pycache__/
+__pycache__/*
