@@ -17,7 +17,7 @@ class VAE(nn.Module):
 
         encoder_modules = []
         if hidden_dims is None:
-            hidden_dims = [2, 4, 8, 16]
+            hidden_dims = [4, 8, 16, 32, 64]
 
         for h_dim in hidden_dims:
             encoder_modules.append(
@@ -33,26 +33,25 @@ class VAE(nn.Module):
                     nn.LeakyReLU())
             )
             in_channels = h_dim
-
         self.encoded_width = int(input_width / (2 ** len(hidden_dims)))
         self.encoded_depth = hidden_dims[-1]
         encoded_dim = self.encoded_width * self.encoded_width * self.encoded_depth
         encoder_modules.append(nn.Sequential(
             nn.Flatten(),
             nn.Linear(encoded_dim, interim_dim),
-            nn.LeakyReLU()
+            nn.LeakyReLU(),
         ))
         self.encoder = nn.Sequential(*encoder_modules)
 
         self.fc_mu = nn.Linear(interim_dim, latent_dim)
         self.fc_var = nn.Linear(interim_dim, latent_dim)
 
-        decoder_modules = []
         self.decoder_input = nn.Sequential(
             nn.Linear(latent_dim, interim_dim),
             nn.LeakyReLU(),
             nn.Linear(interim_dim, encoded_dim)
         )
+        decoder_modules = []
         hidden_dims.reverse()
         for i in range(len(hidden_dims) - 1):
             decoder_modules.append(
@@ -63,7 +62,7 @@ class VAE(nn.Module):
                         kernel_size=3,
                         stride=2,
                         padding=1,
-                        output_padding=1
+                        output_padding=1,
                     ),
                     nn.BatchNorm2d(hidden_dims[i + 1]),
                     nn.LeakyReLU())
@@ -77,7 +76,7 @@ class VAE(nn.Module):
                 kernel_size=3,
                 stride=2,
                 padding=1,
-                output_padding=1
+                output_padding=1,
             ),
             nn.BatchNorm2d(hidden_dims[-1]),
             nn.LeakyReLU(),

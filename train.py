@@ -9,7 +9,7 @@ from pytorch_lightning.plugins import DDPPlugin
 import random
 
 
-NUM_EXPERIMENTS = 1
+NUM_EXPERIMENTS = 20
 
 
 def run_experiment(latent_params, kld_weight, learning_rate, scheduler_gamma):
@@ -31,11 +31,11 @@ def run_experiment(latent_params, kld_weight, learning_rate, scheduler_gamma):
         ],
         strategy=DDPPlugin(find_unused_parameters=False),
         log_every_n_steps=10,
-        max_epochs=30,
+        max_epochs=200,
     )
     runner.fit(
         Experiment(
-            model=VAE(latent_dim=latent_params, interim_dim=2 * latent_params),
+            model=VAE(latent_dim=latent_params, interim_dim=8 * latent_params),
             kld_weight=kld_weight,
             learning_rate=learning_rate,
             scheduler_gamma=scheduler_gamma,
@@ -47,8 +47,8 @@ def run_experiment(latent_params, kld_weight, learning_rate, scheduler_gamma):
 for i in range(NUM_EXPERIMENTS):
     print(f"Running the experiment {i}/{NUM_EXPERIMENTS}...")
     run_experiment(
-        latent_params=random.randint(2, 40),
-        kld_weight=0.00001 + 0.0005 * random.random(),
-        learning_rate=0.0005 + 0.01 * random.random(),
-        scheduler_gamma=1 - 0.2*random.random()
+        latent_params=random.randint(6, 30),
+        kld_weight=0.0002 + 0.0001 * random.random(),
+        learning_rate=0.0003 + 0.0003 * random.random(),
+        scheduler_gamma=0.99 - 0.03*random.random()
     )
